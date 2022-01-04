@@ -81,11 +81,11 @@ SL_WEAK void app_init(void) {
  ************************************************************************************************************************************/
 SL_WEAK void app_process_action(void) {
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Put your additional application code here!                              //
-  // This is called infinitely.                                              //
-  // Do not call blocking functions from here!                               //
-  /////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Put your additional application code here!                              														//
+  // This is called infinitely.                                              														//
+  // Do not call blocking functions from here!                               														//
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return;
 }
@@ -188,9 +188,9 @@ void sl_bt_on_event(sl_bt_msg_t *evt) {
       app_log_info("Started advertising\n");
       break;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Add additional event handlers here as your application requires!      //
-    ///////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Add additional event handlers here as your application requires!      														//
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // ---------------------------------------------------------------------------------------------------------------------------
     // Default event handler.
@@ -294,9 +294,10 @@ static void app_periodic_timer_cb(sl_simple_timer_t *timer, void *data) {
   sl_status_t sc;
   int32_t temperature = 0;
   uint32_t humidity = 0;
-  float tmp_c = 0.0;
 #ifdef USING_FAHRENHEIT
   float tmp_f = 0.0;
+#else
+  float tmp_c = 0.0;
 #endif
 
 
@@ -312,17 +313,19 @@ static void app_periodic_timer_cb(sl_simple_timer_t *timer, void *data) {
     temperature = -20 * 1000;
   }
 
-  tmp_c = (float)temperature / 1000;
-  app_log_info("Temperature: %5.2f C\n", tmp_c);
+#ifdef USING_FAHRENHEIT 													/* Conversion to Fahrenheit: F = C * 1.8 + 32			*/
+   tmp_f = (float)(temperature*18+320000)/10000;
+   app_log_info("Temperature: %5.2f F\n", tmp_f);
+   Send temperature measurement indication to connected client.
+   sc = sl_bt_ht_temperature_measurement_indicate(app_connection, (temperature*18+320000)/10, true);
+#else
+   tmp_c = (float)temperature / 1000;
+   app_log_info("Temperature: %5.2f C\n", tmp_c);
 
-  // Send temperature measurement indication to connected client.
-  sc = sl_bt_ht_temperature_measurement_indicate(app_connection, temperature, false);
+   // Send temperature measurement indication to connected client.
+   sc = sl_bt_ht_temperature_measurement_indicate(app_connection, temperature, false);
+#endif
 
-  // Conversion to Fahrenheit: F = C * 1.8 + 32
-  // tmp_f = (float)(temperature*18+320000)/10000;
-  // app_log_info("Temperature: %5.2f F\n", tmp_f);
-  // Send temperature measurement indication to connected client.
-  // sc = sl_bt_ht_temperature_measurement_indicate(app_connection, (temperature*18+320000)/10, true);
   if (sc) {
     app_log_warning("Failed to send temperature measurement indication\n");
   }
