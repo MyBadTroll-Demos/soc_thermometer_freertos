@@ -26,7 +26,10 @@ Demonstrates the integration of FreeRTOS into Bluetooth applications. RTOS is ad
 
 ```
 
-	1. ?
+	1. #1460: PASS
+	2. #9A28: PASS
+	3. #EFCB: PASS
+
 	
 ```
 
